@@ -2,3 +2,5 @@
 language: ruby
 rvm:
 - 2.3.0
+script: 
+  - RAILS_ENV=test rake db:create
