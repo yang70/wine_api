@@ -22,7 +22,7 @@ module API
       @wine = Wine.new(wine_params)
 
       if @wine.save
-        render json: @wine, status: :created, location: @wine
+        render json: @wine, status: :created
       else
         render json: @wine.errors, status: :unprocessable_entity
       end
@@ -34,7 +34,7 @@ module API
       @wine = Wine.find(params[:id])
 
       if @wine.update(wine_params)
-        head :no_content
+        render json: @wine, status: 200
       else
         render json: @wine.errors, status: :unprocessable_entity
       end
