@@ -42,6 +42,12 @@ RSpec.describe "wines api", :type => :request do
     expect(json[:name]).to eq("created wine")
   end
 
+  it "returns error whith unsuccessful create" do
+    post "/wines", wine: {name: nil}
+
+    expect(response).to have_http_status(422)
+  end
+
   it "updates a wine with PATCH to /wines/:id" do
     test_update_wine = Wine.find_by(name: "Wine 1")
 
