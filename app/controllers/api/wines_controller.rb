@@ -50,12 +50,12 @@ module API
 
     private
 
-      def set_wine
-        @wine = Wine.find(params[:id])
-      end
+    def set_wine
+      @wine = Wine.find(params[:id])
+    end
 
-      def wine_params
-        params.require(:wine).permit(:name, :varietal, :quantity)
-      end
+    def wine_params
+      params.require(:wine).permit(:name, :varietal, :quantity)
+    end
   end
 end
