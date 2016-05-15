@@ -8,6 +8,8 @@ gem 'pg'
 gem 'active_model_serializers', '~> 0.10.0.rc2'
 gem 'pry-rails'
 gem 'coveralls', require: false
+gem 'devise'
+gem 'jwt'
 
 group :development, :test do
   gem 'rspec-rails', '~> 3.0'
