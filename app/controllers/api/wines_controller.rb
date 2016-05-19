@@ -1,5 +1,6 @@
 module API
   class WinesController < ApplicationController
+    before_filter :authenticate_request!
     before_action :set_wine, only: [:show, :update, :destroy]
 
     # GET /wines

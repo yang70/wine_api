@@ -10,7 +10,9 @@ RSpec.describe "wines api", :type => :request do
   end
   
   it "returns all wines with GET request to /wines" do
-    get "/wines"
+    token = user_token
+
+    get "/wines", nil, {'Authorization' => token}
 
     json = JSON.parse(response.body, symbolize_names: true)
 
