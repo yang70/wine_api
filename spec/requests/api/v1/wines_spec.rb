@@ -5,100 +5,159 @@ RSpec.describe "wines api", :type => :request do
   before(:each) do
     host!('api.example.com')
 
-    wine1 = Wine.create!(name: "Wine 1", varietal: "Variety 1", quantity: 1)
-    wine2 = Wine.create!(name: "Wine 2", varietal: "Variety 2", quantity: 1)
+    Wine.create!(name: "Wine 1", varietal: "Variety 1", quantity: 1)
+    Wine.create!(name: "Wine 2", varietal: "Variety 2", quantity: 1)
   end
   
-  it "returns all wines with GET request to /wines" do
-    get "/wines"
+  it "returns all wines with authenticated GET request to /wines" do
+    token = user_token
 
-    json = JSON.parse(response.body, symbolize_names: true)
+    get "/wines", nil, {'Authorization' => token}
 
     expect(response).to be_success
 
-    expect(json.length).to eq(2)
-    expect(json[0][:name]).to eq("Wine 1")
-    expect(json[1][:name]).to eq("Wine 2")
+    expect(response_as_json.length).to eq(2)
+    expect(response_as_json[0][:name]).to eq("Wine 1")
+    expect(response_as_json[1][:name]).to eq("Wine 2")
   end
 
-  it "returns one wine with GET request to /wines/:id" do
+  it "returns error with un-authenticated GET request to /wines" do
+    get "/wines"
+
+    expect(response).to have_http_status(401)
+    expect(response_as_json[:errors][0]).to eq("Not Authenticated")
+  end
+
+  it "returns one wine with authenticated GET request to /wines/:id" do
+    token = user_token
+
+    test_wine = Wine.find_by(name: "Wine 1")
+
+    get "/wines/#{test_wine.id}", nil, {'Authorization' => token}
+
+    expect(response).to be_success
+
+    expect(response_as_json[:name]).to eq("Wine 1")
+  end
+
+  it "returns error with non-authenticated GET request to /wines/:id" do
     test_wine = Wine.find_by(name: "Wine 1")
 
     get "/wines/#{test_wine.id}"
 
-    json = JSON.parse(response.body, symbolize_names: true)
-
-    expect(response).to be_success
-
-    expect(json[:name]).to eq("Wine 1")
+    expect(response).to have_http_status(401)
+    expect(response_as_json[:errors][0]).to eq("Not Authenticated")
   end
 
-  it "creates a wine with POST to /wines" do
-    post "/wines", wine: {name: "created wine"}
+  it "creates a wine with authenticated create POST to /wines" do
+    token = user_token
 
-    json = JSON.parse(response.body, symbolize_names: true)
+    post "/wines", {wine: {name: "created wine"}}, {'Authorization' => token}
 
     expect(response).to be_success
-    expect(json[:name]).to eq("created wine")
+    expect(response_as_json[:name]).to eq("created wine")
   end
 
-  it "returns error whith unsuccessful create" do
-    post "/wines", wine: {name: nil}
+  it "returns 422 error with authenticated create POST attempt with invalid data" do
+    token = user_token
+
+    post "/wines", {wine: {name: nil}}, {'Authorization' => token}
 
     expect(response).to have_http_status(422)
   end
 
-  it "updates a wine with PATCH to /wines/:id" do
+  it "returns an error with non-authenticated POST to /wines" do
+    post "/wines", wine: {name: "created wine"}
+
+    expect(response).to have_http_status(401)
+    expect(response_as_json[:errors][0]).to eq("Not Authenticated")
+  end
+
+  it "updates a wine with authenticated PATCH to /wines/:id" do
+    token = user_token
+
+    test_update_wine = Wine.find_by(name: "Wine 1")
+
+    patch "/wines/#{test_update_wine.id}", {wine: {name: "updated name"}}, {'Authorization' => token}
+
+    expect(response).to be_success
+    expect(response_as_json[:name]).to eq("updated name")
+  end
+
+  it "returns 422 error with authenticated PATCH attempt with invalid data" do
+    token = user_token
+
+    test_update_wine = Wine.find_by(name: "Wine 1")
+
+    patch "/wines/#{test_update_wine.id}", {wine: {name: ""}}, {'Authorization' => token}
+
+    expect(response).to have_http_status(422)
+    expect(response_as_json[:name][0]).to eq("can't be blank")
+  end
+
+  it "returns an error with non-authenticated PATCH to /wines/:id" do
     test_update_wine = Wine.find_by(name: "Wine 1")
 
     patch "/wines/#{test_update_wine.id}", wine: {name: "updated name"}
 
-    json = JSON.parse(response.body, symbolize_names: true)
+    expect(response).to have_http_status(401)
+    expect(response_as_json[:errors][0]).to eq("Not Authenticated")
+  end
+
+  it "updates a wine with authenticated PUT to /wines/:id" do
+    token = user_token
+
+    test_update_wine = Wine.find_by(name: "Wine 2")
+
+    put "/wines/#{test_update_wine.id}", {wine: {name: "updated again"}}, {'Authorization' => token}
 
     expect(response).to be_success
-    expect(json[:name]).to eq("updated name")
+    expect(response_as_json[:name]).to eq("updated again")
   end
+  
+  it "returns 422 error with authenticated PUT with invalid data" do
+    token = user_token
 
-  it "returns 422 error if PATCH update fails" do
     test_update_wine = Wine.find_by(name: "Wine 1")
 
-    patch "/wines/#{test_update_wine.id}", wine: {name: ""}
-
-    json = JSON.parse(response.body, symbolize_names: true)
+    put "/wines/#{test_update_wine.id}", {wine: {name: ""}}, {'Authorization' => token}
 
     expect(response).to have_http_status(422)
-    expect(json[:name][0]).to eq("can't be blank")
+    expect(response_as_json[:name][0]).to eq("can't be blank")
   end
 
-  it "updates a wine with PUT to /wines/:id" do
+  it "returns 'Not Authenticated' with non-authenticated PUT to /wines/:id" do
     test_update_wine = Wine.find_by(name: "Wine 2")
 
     put "/wines/#{test_update_wine.id}", wine: {name: "updated again"}
 
-    json = JSON.parse(response.body, symbolize_names: true)
+    expect(response).to have_http_status(401)
+    expect(response_as_json[:errors][0]).to eq('Not Authenticated')
+  end
+
+  it "deletes a wine with authenticated DELETE to /wines/:id" do
+    token = user_token
+
+    all_wines_length = Wine.all.length
+
+    test_delete_wine = Wine.create!(name: "delete me", varietal: "Variety 3", quantity: 1 )
+
+    expect(all_wines_length + 1).to eq(Wine.all.length)
+
+    delete "/wines/#{test_delete_wine.id}", nil, {'Authorization' => token}
 
     expect(response).to be_success
-    expect(json[:name]).to eq("updated again")
-  end
-  
-  it "returns 422 error if PUT update fails" do
-    test_update_wine = Wine.find_by(name: "Wine 1")
-
-    put "/wines/#{test_update_wine.id}", wine: {name: ""}
-
-    json = JSON.parse(response.body, symbolize_names: true)
-
-    expect(response).to have_http_status(422)
-    expect(json[:name][0]).to eq("can't be blank")
+    expect(Wine.all.length).to eq(all_wines_length)
   end
 
-  it "deletes a wine with DELETE to /wines/:id" do
-    all_wines = Wine.all
+  it "returns 'Not Authenticated' with non-authenticated DELETE to /wines/:id" do
+    all_wines_length = Wine.all.length
+
     test_delete_wine = Wine.create!(name: "delete me", varietal: "Variety 3", quantity: 1 )
 
     delete "/wines/#{test_delete_wine.id}"
 
-    expect(response).to be_success
-    expect(Wine.all).to eq all_wines
+    expect(response).to have_http_status(401)
+    expect(Wine.all.length).to eq(all_wines_length + 1)
   end
 end
