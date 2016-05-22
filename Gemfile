@@ -10,6 +10,7 @@ gem 'pry-rails'
 gem 'coveralls', require: false
 gem 'devise'
 gem 'jwt'
+gem 'cancancan', '~> 1.10'
 
 group :development, :test do
   gem 'rspec-rails', '~> 3.0'
