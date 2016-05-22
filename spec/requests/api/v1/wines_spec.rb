@@ -5,7 +5,8 @@ RSpec.describe "wines api", :type => :request do
   before(:context) do
     host!('api.example.com')
 
-    @wines_arr = create_list(:wine, 2)
+    create(:user_with_wines)
+    create(:user_with_wines)
   end
 
   describe "check happy and sad paths for requests to the API" do
