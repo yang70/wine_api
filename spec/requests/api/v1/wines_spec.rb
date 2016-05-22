@@ -12,15 +12,21 @@ RSpec.describe "wines api", :type => :request do
   describe "check happy and sad paths for requests to the API" do
   
     it "returns all wines with authenticated GET request to /wines" do
-      token = user_token
+      test_user = User.first
+
+      token = user_token(test_user)
 
       get "/wines", nil, {'Authorization' => token}
 
       expect(response).to be_success
 
+      puts response_as_json
+
       expect(response_as_json.length).to eq(2)
       expect(response_as_json[0][:name]).to eq("Wine 1")
+      expect(response_as_json[0][:user_id]).to eq(test_user.id)
       expect(response_as_json[1][:name]).to eq("Wine 2")
+      expect(response_as_json[1][:user_id]).to eq(test_user.id)
     end
 
     it "returns error with un-authenticated GET request to /wines" do
