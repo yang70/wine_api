@@ -1,8 +1,7 @@
 module Helpers
-  def user_token
-    User.create!(email: "foo@bar.com", password: "password")
+  def user_token(user)
 
-    post "/auth_user", {email: "foo@bar.com", password: "password"}
+    post "/auth_user", {email: user.email, password: "password"}
 
     JSON.parse(response.body, symbolize_names: true)[:auth_token]
   end
