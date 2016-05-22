@@ -58,7 +58,7 @@ RSpec.describe "wines api", :type => :request do
     expect(response_as_json[:name]).to eq("created wine")
   end
 
-  it "returns 422 error with authenticated create POST attempt with invalid data" do
+  it "returns 422 error with authenticated create POST with invalid data" do
     token = user_token
 
     post "/wines", {wine: {name: nil}}, {'Authorization' => token}
