@@ -3,6 +3,10 @@ class ApplicationController < ActionController::API
 
   attr_reader :current_user
 
+  rescue_from CanCan::AccessDenied do |exception|
+    render json: { errors: ["#{exception.message}"] }
+  end
+
   protected
   def authenticate_request!
     unless user_id_in_token?
