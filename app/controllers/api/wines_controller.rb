@@ -1,26 +1,23 @@
 module API
   class WinesController < ApplicationController
     before_filter :authenticate_request!
-    before_action :set_wine, only: [:show, :update, :destroy]
+    load_and_authorize_resource
 
     # GET /wines
-    # GET /wines.json
     def index
-      @wines = Wine.all
-
+      # authorize! :read, Wine
       render json: @wines
     end
 
     # GET /wines/1
-    # GET /wines/1.json
     def show
+      # authorize! :show, @wine
       render json: @wine
     end
 
     # POST /wines
-    # POST /wines.json
     def create
-      @wine = Wine.new(wine_params)
+      @wine.user = current_user
 
       if @wine.save
         render json: @wine, status: :created
@@ -30,9 +27,7 @@ module API
     end
 
     # PATCH/PUT /wines/1
-    # PATCH/PUT /wines/1.json
     def update
-      @wine = Wine.find(params[:id])
 
       if @wine.update(wine_params)
         render json: @wine, status: 200
@@ -42,7 +37,6 @@ module API
     end
 
     # DELETE /wines/1
-    # DELETE /wines/1.json
     def destroy
       @wine.destroy
 

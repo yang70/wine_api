@@ -1,4 +1,6 @@
 class ApplicationController < ActionController::API
+  include CanCan::ControllerAdditions
+
   attr_reader :current_user
 
   protected
