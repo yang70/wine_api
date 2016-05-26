@@ -11,6 +11,7 @@ gem 'coveralls', require: false
 gem 'devise'
 gem 'jwt'
 gem 'cancancan', '~> 1.10'
+gem 'puma'
 
 group :development, :test do
   gem 'rspec-rails', '~> 3.0'
