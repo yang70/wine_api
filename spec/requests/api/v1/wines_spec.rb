@@ -13,17 +13,18 @@ RSpec.describe "wines api", :type => :request do
   
     it "returns all wines for first user with authenticated GET request to /wines" do
       test_user = User.first
-
       token = user_token(test_user)
+
+      user_wines = Wine.where(user: test_user)
 
       get "/wines", nil, {'Authorization' => token}
 
       expect(response).to be_success
 
       expect(response_as_json.length).to eq(2)
-      expect(response_as_json[0][:name]).to eq("Wine 2")
+      expect(response_as_json[0][:name]).to eq(user_wines[0].name)
       expect(response_as_json[0][:user][:id]).to eq(test_user.id)
-      expect(response_as_json[1][:name]).to eq("Wine 1")
+      expect(response_as_json[1][:name]).to eq(user_wines[1].name)
       expect(response_as_json[1][:user][:id]).to eq(test_user.id)
     end
 
@@ -45,7 +46,7 @@ RSpec.describe "wines api", :type => :request do
 
       expect(response).to be_success
 
-      expect(response_as_json[:name]).to eq("Wine 2")
+      expect(response_as_json[:name]).to eq(test_wine.name)
     end
 
     it "returns error with non-authenticated GET request to /wines/:id" do
