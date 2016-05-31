@@ -12,6 +12,7 @@ gem 'devise'
 gem 'jwt'
 gem 'cancancan', '~> 1.10'
 gem 'puma'
+gem 'rack-cors', :require => 'rack/cors'
 
 group :development, :test do
   gem 'rspec-rails', '~> 3.0'
