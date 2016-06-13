@@ -3,7 +3,6 @@ require 'rails_helper'
 RSpec.describe "wines api", :type => :request do
 
   before(:context) do
-    host!('api.example.com')
 
     create(:user_with_wines)
     create(:user_with_wines)
