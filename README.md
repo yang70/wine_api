@@ -30,6 +30,8 @@ __Deployment:__
 ## Use | Command Line Examples
 
 ### Sign In
+Send a `POST` request including the email and password:
+
 ```bash
 $ curl -X POST -d email=youremail@example.com -d password=password http://my-wine-cellar.herokuapp.com/auth_user
 ```
